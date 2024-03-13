@@ -10,7 +10,7 @@ int price[4] = {0, 25, 30, 15}, stocks[4] = {0, 100, 100, 100};
 int present_quantity [4] = {0, 0, 0, 0}, previous_quantity[4] = {0, 0, 0, 0};
 int sold[4] = {0, 0 , 0, 0}, sales[4] = {0, 0, 0, 0};
 int grand_total = 0, order_no = 1, choice, total = 0, num, total_bill = 0; 
-int stock_before = 0, stock_after = 0, quantity = 0; 
+int  stock_before = 0, stock_after = 0, quantity = 0; 
 char description [5][10] = {"","Hamburger", "French", "Coke", "Exit"};
 char ans;
 float payment, change; 
@@ -58,6 +58,7 @@ void display_total(){
 }
 
 void enter_order (){
+    order:
     g(2, 8);p("Enter Choice: ");
     for (num = 1; num > 0; num++){
         g(17, 8);s("%d", &choice);
@@ -77,34 +78,54 @@ void enter_order (){
         } 
         if (choice == 4){
             //ma proceed sa payment
+            pay:
             g(60, 3 + num);p("Total is: %d", total_bill);
             g(60, 4 + num);p("Payment: ");
-            g(70, 4 + num);s("%d", &payment);
+            g(70, 4 + num);s("%f", &payment);
+            if (payment > total_bill){
+                change = payment - total_bill;
+                g(60, 5 + num);p("Change: %5.2f", change);
+                break;
+            }
             if (payment < total_bill){
-                g(65, 5 + num);p("Cancel Order?: ");
-                g(78, 5 + num);s("%c", &ans);
+                g(60, 5 + num);p("Cancel Order?: ");
+                g(75, 5 + num);s("%s", &ans);
                 if (ans == 'y' || ans == 'Y'){
                     for (num = 1; num < 4; num ++){
-                        stocks[num] = stocks[num] + previous_quantity[num];/*gamiton ta ang prev quantity[num] para ma access naton 
+                        stocks[num] = stocks[num] + previous_quantity[num];
+                        g(17, 8);p("               ");
+                        g(40, 2 + num);p("      ");
+                        g(45, 2 + num);p("                     ");
+                        g(60, 2 + num);p("                     ");
+                        g(68, 2 + num);p("     ");
+                        g(72, 2 + num);p("     ");
+                        g(60, 3 + num);p("                      ");
+                        g(60, 4 + num);p("                      ");
+                        g(60, 5 + num);p("                     ");
+                        g(60, 6 + num);p("                     ");
+                        goto order;
+                        /*gamiton ta ang prev quantity[num] para ma access naton 
                         ang value prev qty by the use of num*/
                     }
+                } else if (ans == 'n' || 'N'){
+                    g(70, 4 + num);p("   ");
+                    g(60, 5 + num);p("                 ");
+                    goto pay;
                 }
+            } else {
+                g(65, 5 + num);p("INVALID INPUY");
             }
-            change = payment - total_bill;
-            g(65, 4 + num);p("Total is: %d", total_bill);
-            break;
         }      
     }
 }
-
 int main (){
     system("cls");
     do{
         box(1, 37, 1, 10);
         display_jollibee();
         enter_order();
-        g(2, 25);p("Another Order? ");
-        g(25, 25);s("%s", &ans);
+        g(55, 7 + num);p("Another Order? ");
+        g(70, 7 + num);s("%s", &ans);
         system("cls");
     } while (ans == 'y' || ans == 'Y');
     system("cls");
