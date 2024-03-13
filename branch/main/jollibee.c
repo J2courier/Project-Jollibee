@@ -37,7 +37,6 @@ int box(int col1, int col2, int row1, int row2) {
     }
 }
 
-
 void display_jollibee (){
     g(2, 3);p("ORDER NO. %d", order_no);
     g(2, 3);p("Products");
