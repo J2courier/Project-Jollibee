@@ -4,7 +4,7 @@
 #define s scanf
 #define g gotoxy
 #define peso '₱'
-
+// ! bug found when entering invalids the number increments
 int col_1, col_2, row_1, row_3, col, row;
 int price[4] = {0, 25, 30, 15}, stocks[4] = {0, 100, 100, 100};
 int present_quantity [4] = {0, 0, 0, 0}, previous_quantity[4] = {0, 0, 0, 0};
@@ -61,6 +61,7 @@ void enter_order (){
     g(2, 8);p("Enter Choice: ");
     for (num = 1; num > 0; num++){
         g(17, 8);s("%d", &choice);
+        g(2, 9);p("              ");
         if (choice > 0 && choice < 4){
             g(20, 8);p("Qty: ");
             g(25, 8);s("%d", &quantity);
@@ -114,7 +115,10 @@ void enter_order (){
             } else {
                 g(65, 5 + num);p("INVALID INPUY");
             }
-        }      
+        } else {
+            //g(2, 9);p("INVALID INPUT");
+            g(17, 8);p("              ");
+        }   
     }
 }
 int main (){
