@@ -113,7 +113,7 @@ void enter_order (){
                     goto pay;
                 }
             } else {
-                g(65, 5 + num);p("INVALID INPUY");
+                g(65, 5 + num);p("INVALID INPUT");
             }
         } else {
             //g(2, 9);p("INVALID INPUT");
