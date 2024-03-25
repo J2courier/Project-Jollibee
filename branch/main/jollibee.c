@@ -8,6 +8,7 @@
 //! after cancel order where will the user be redirected to?? is it in payment or in choice?
 //! need to fixed cancel order update
 //! optimize the code
+//! inventory display
 //? what's new?
 //? order update fixed
 //? order_no increment fixed
