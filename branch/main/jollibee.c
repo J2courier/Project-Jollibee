@@ -4,16 +4,23 @@
 #define s scanf
 #define g gotoxy
 #define peso '₱'
-// ! bug found when entering invalids the number increments
+//! bug found when entering invalids the number increments
+//! after cancel order where will the user be redirected to?? is it in payment or in choice?
+//! need to fixed cancel order update
+//! optimize the code
+//? what's new?
+//? order update fixed
+//? order_no increment fixed
+
+char ans;
+float payment, change; 
 int col_1, col_2, row_1, row_3, col, row;
 int price[4] = {0, 25, 30, 15}, stocks[4] = {0, 100, 100, 100};
 int present_quantity [4] = {0, 0, 0, 0}, previous_quantity[4] = {0, 0, 0, 0};
 int sold[4] = {0, 0 , 0, 0}, sales[4] = {0, 0, 0, 0};
 int grand_total = 0, order_no = 1, choice, total = 0, num, total_bill = 0; 
 int  stock_before = 0, stock_after = 0, quantity = 0; 
-char description [5][10] = {"","Hamburger", "French", "Coke", "Exit"};
-char ans;
-float payment, change; 
+char description [5][10] = {"","Hamburger", "French", "Coke", "Exit"}; //[5] is number sang index, [10] 10 characters or letters max
 
 void gotoxy (int x, int y){
     COORD coord;
@@ -38,7 +45,7 @@ int box(int col1, int col2, int row1, int row2) {
 }
 
 void display_jollibee (){
-    g(2, 3);p("ORDER NO. %d", order_no);
+    g(2, 2);p("ORDER NO. %d", order_no);
     g(2, 3);p("Products");
     g(20, 3);p("Price &");
     g(30, 3);p("Stocks");
@@ -57,6 +64,7 @@ void display_total(){
 }
 
 void enter_order (){
+    display_jollibee ();
     order:
     g(2, 8);p("Enter Choice: ");
     for (num = 1; num > 0; num++){
@@ -73,8 +81,11 @@ void enter_order (){
             g(45, 2 + num);p("%s", description[choice]);
             g(60, 2 + num);p("P %d", price[choice]);
             g(68, 2 + num);p("%d", quantity);
-            g(72, 2 + num);p("%d", total); 
+            g(72, 2 + num);p("%d", total);
             g(15, 8);p("                    ");
+            g(32, 4);p("%d ", stocks[1]);
+            g(32, 5);p("%d ", stocks[2]);
+            g(32, 6);p("%d ", stocks[3]);
         } 
         if (choice == 4){
             //ma proceed sa payment
@@ -82,6 +93,10 @@ void enter_order (){
             g(60, 3 + num);p("Total is: %d", total_bill);
             g(60, 4 + num);p("Payment: ");
             g(70, 4 + num);s("%f", &payment);
+            if (payment == total_bill){
+                g(60, 5 + num);p("Order success");
+                break;
+            }
             if (payment > total_bill){
                 change = payment - total_bill;
                 g(60, 5 + num);p("Change: %5.2f", change);
@@ -125,10 +140,11 @@ int main (){
     system("cls");
     do{
         box(1, 37, 1, 10);
-        display_jollibee();
+        //display_jollibee();
         enter_order();
         g(55, 7 + num);p("Another Order? ");
         g(70, 7 + num);s("%s", &ans);
+        order_no = order_no + 1;
         system("cls");
     } while (ans == 'y' || ans == 'Y');
     system("cls");
