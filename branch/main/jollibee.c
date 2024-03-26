@@ -60,11 +60,12 @@ void display_jollibee (){
     g(5, 7);p("%s", description[4]);
 }
 
-void display_total(){
+void display_total_inventory(){
     //total/grand total
+    //! task here for inventory
 }
 
-void enter_order (){
+void enter_order (){//? 70% of process is stroed in this function
     display_jollibee ();
     order:
     g(2, 8);p("Enter Choice: ");
@@ -87,9 +88,8 @@ void enter_order (){
             g(32, 4);p("%d ", stocks[1]);
             g(32, 5);p("%d ", stocks[2]);
             g(32, 6);p("%d ", stocks[3]);
-        } 
-        if (choice == 4){
-            //ma proceed sa payment
+        }  
+        if (choice == 4){//ma proceed sa payment
             pay:
             g(60, 3 + num);p("Total is: %d", total_bill);
             g(60, 4 + num);p("Payment: ");
@@ -119,6 +119,7 @@ void enter_order (){
                         g(60, 4 + num);p("                      ");
                         g(60, 5 + num);p("                     ");
                         g(60, 6 + num);p("                     ");
+                        //! we can optimize this using for loop i'll fix it later
                         goto order;
                         /*gamiton ta ang prev quantity[num] para ma access naton 
                         ang value prev qty by the use of num*/
@@ -137,6 +138,8 @@ void enter_order (){
         }   
     }
 }
+
+
 int main (){
     system("cls");
     do{
