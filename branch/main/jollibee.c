@@ -63,6 +63,7 @@ void display_jollibee (){
 void display_total_inventory(){
     //total/grand total
     //! task here for inventory
+    
 }
 
 void enter_order (){//? 70% of process is stroed in this function
