@@ -4,16 +4,20 @@
 #define s scanf
 #define g gotoxy
 #define peso '₱'
-//! Bug found when entering invalids the number increments
+
 //! After cancel order where will the user be redirected to?? is it in payment or in choice?
 //! Need to fixed cancel order update
 //! Optimize the code
 //! Inventory display
 //! need to be fixed in another order reset total value
 //! need to be fixed in instant exit if user enters choice 4 without order que
+//! cancel order
+//! need fixed quantity 0
+//! need to fix cancel order twice value is stacked and being displayed
+
 //? what's new?
 //? order update fixed
-//? order_no increment fixed
+//? order no increment fixed
 
 char ans;
 float payment, change;
@@ -64,8 +68,6 @@ void display_jollibee (){
 }
 
 void display_total_inventory(){
-    //total/grand total
-    //! task here for inventory
     g(15, 12);p("SB");
     g(20, 12);p("SE");
     g(25, 12);p("SOLD");
@@ -92,6 +94,7 @@ void erase (){
 }
 
 void enter_order (){//? 70% of process is stored in this function
+    cancel_order:
     display_jollibee ();
     order:
     g(2, 8);p("Enter Choice: ");
@@ -116,7 +119,7 @@ void enter_order (){//? 70% of process is stored in this function
             g(32, 5);p("%d ", stocks[2]);
             g(32, 6);p("%d ", stocks[3]);
         }  
-        if (choice == 4){ //ma proceed sa payment
+        else if (choice == 4){ //ma proceed sa payment
             pay:
             g(60, 2 + num);p("Total is: %d", total_bill);
             g(60, 3 + num);p("Payment: ");
@@ -126,12 +129,12 @@ void enter_order (){//? 70% of process is stored in this function
                 g(60, 4 + num);p("Order success");
                 break;
             }
-            if (payment > total_bill){ //? change
+            else if (payment > total_bill){ //? change
                 change = payment - total_bill;
                 g(60, 4 + num);p("Change: %5.2f", change);
                 break;
             }
-            if (payment < total_bill){ //! cancel order
+            else if (payment < total_bill){ //! cancel order
                 g(60, 4 + num);p("Cancel Order?: ");
                 g(75, 4 + num);s("%s", &ans);
                 if (ans == 'y' || ans == 'Y'){
@@ -139,20 +142,23 @@ void enter_order (){//? 70% of process is stored in this function
                         stocks[num] = stocks[num] + present_quantity[num];
                         erase();
                         //! we can optimize this using for loop i'll fix it later
-                        goto order;
                         /* gamiton ta ang prev quantity[num] para ma access naton 
                         ang value prev qty by the use of num */
                     }
+                    goto cancel_order;
                 } else if (ans == 'n' || 'N'){
                     g(70, 4 + num);p("   ");
                     g(60, 5 + num);p("                 ");
                     goto pay;
+                } else {
+                    g(70, 4 + num);p("INVALID INPUT");
                 }
             } else {
                 g(65, 5 + num);p("INVALID INPUT");
             }
         } else {
-            //g(2, 9);p("INVALID INPUT");
+            g(2, 9);p("INVALID INPUT");
+            num = num - 1;
             g(17, 8);p("              ");
         }   
     }
@@ -183,5 +189,4 @@ int main (){
             system("cls");
         }
     } 
-    
 }
