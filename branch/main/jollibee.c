@@ -9,18 +9,21 @@
 //! Need to fixed cancel order update
 //! Optimize the code
 //! Inventory display
+//! need to be fixed in another order reset total value
+//! need to be fixed in instant exit if user enters choice 4 without order que
 //? what's new?
 //? order update fixed
 //? order_no increment fixed
 
 char ans;
-float payment, change; 
+float payment, change;
+int flag; 
 int col_1, col_2, row_1, row_3, col, row;
-int price[4] = {0, 25, 30, 15}, stocks[4] = {0, 100, 100, 100};
-int present_quantity [4] = {0, 0, 0, 0}, previous_quantity[4] = {0, 0, 0, 0};
+int price[4] = {0, 25, 30, 15}, stocks[4] = {0, 100, 100, 100}, stock_beginning[4] = {0, 100, 100, 100}, present_stocks[4] = {0, 100, 100, 100};
+int quantity [4] = {0, 0, 0, 0}, present_quantity[4] = {0, 0, 0, 0};
 int sold[4] = {0, 0 , 0, 0}, sales[4] = {0, 0, 0, 0};
 int grand_total = 0, order_no = 1, choice, total = 0, num, total_bill = 0; 
-int  stock_before = 0, stock_after = 0, quantity = 0; 
+int  stock_before = 0, stock_after = 0; 
 char description [5][10] = {"","Hamburger", "French", "Coke", "Exit"}; //[5] is number sang index, [10] 10 characters or letters max
 
 void gotoxy (int x, int y){
@@ -32,13 +35,13 @@ void gotoxy (int x, int y){
 
 int box(int col1, int col2, int row1, int row2) {
     for(col=col1;col<=col2;col++){
-        g(col,row1);p("|");
+        g(col,row1);p("-");
     }
     for(row=row1;row<=row2;row++){
         g(col2,row);p("|");
     }
     for(col=col2;col>=col1;col--){
-        g(col,row2);p("|");
+        g(col,row2);p("-");
     }
     for(row=row2;row>=row1;row--){
         g(col1,row);p("|");
@@ -63,10 +66,32 @@ void display_jollibee (){
 void display_total_inventory(){
     //total/grand total
     //! task here for inventory
-    
+    g(15, 12);p("SB");
+    g(20, 12);p("SE");
+    g(25, 12);p("SOLD");
+    g(30, 12);p("SALES");
+    for (num = 1; num < 4; num ++){
+        g(15, 13 + num);p("100");
+        g(20, 13 + num);p("%d", stocks[num]);
+        g(25, 13 + num);p("%d", present_quantity[num]);
+        g(2, 13 + num);p("%s", description[num]);
+    }
 }
 
-void enter_order (){//? 70% of process is stroed in this function
+void erase (){
+    g(17, 8);p("               ");
+    g(40, 2 + num);p("      ");
+    g(45, 2 + num);p("                     ");
+    g(60, 2 + num);p("                     ");
+    g(68, 2 + num);p("     ");
+    g(72, 2 + num);p("     ");
+    g(60, 3 + num);p("                      ");
+    g(60, 4 + num);p("                      ");
+    g(60, 5 + num);p("                     ");
+    g(60, 6 + num);p("                     ");
+}
+
+void enter_order (){//? 70% of process is stored in this function
     display_jollibee ();
     order:
     g(2, 8);p("Enter Choice: ");
@@ -75,55 +100,48 @@ void enter_order (){//? 70% of process is stroed in this function
         g(2, 9);p("              ");
         if (choice > 0 && choice < 4){
             g(20, 8);p("Qty: ");
-            g(25, 8);s("%d", &quantity);
-            stocks[choice] = stocks[choice] - quantity;//bawasan ang stock
-            total = price[choice] * quantity; //e total iya balayran
+            g(25, 8);s("%d", &quantity[choice]);
+            //present_stocks[choice] = stocks[choice] - quantity;
+            stocks[choice] = stocks[choice] - quantity[choice];//bawasan ang stocks
+            total = price[choice] * quantity[choice]; //e total iya balayran
             total_bill = total_bill + total;
-            previous_quantity [choice] = quantity; //i set ta ang quantity subong sa previous quanitity nga iya gin pili, kay gamiton tana karon
-            g(40, 2 + num);p("%d", num);
-            g(45, 2 + num);p("%s", description[choice]);
-            g(60, 2 + num);p("P %d", price[choice]);
-            g(68, 2 + num);p("%d", quantity);
-            g(72, 2 + num);p("%d", total);
+            present_quantity [choice] = present_quantity[choice] + quantity[choice]; //i set ta ang quantity subong sa previous quanitity nga iya gin pili, kay gamiton tana karon
+            g(40, 1 + num);p("%d", num);
+            g(45, 1 + num);p("%s", description[choice]);
+            g(60, 1 + num);p("P %d", price[choice]);
+            g(68, 1 + num);p("%d", quantity[choice]);
+            g(72, 1 + num);p("%d", total);
             g(15, 8);p("                    ");
             g(32, 4);p("%d ", stocks[1]);
             g(32, 5);p("%d ", stocks[2]);
             g(32, 6);p("%d ", stocks[3]);
         }  
-        if (choice == 4){//ma proceed sa payment
+        if (choice == 4){ //ma proceed sa payment
             pay:
-            g(60, 3 + num);p("Total is: %d", total_bill);
-            g(60, 4 + num);p("Payment: ");
-            g(70, 4 + num);s("%f", &payment);
-            if (payment == total_bill){
-                g(60, 5 + num);p("Order success");
+            g(60, 2 + num);p("Total is: %d", total_bill);
+            g(60, 3 + num);p("Payment: ");
+            g(70, 3 + num);s("%f", &payment);
+
+            if (payment == total_bill){ //? success
+                g(60, 4 + num);p("Order success");
                 break;
             }
-            if (payment > total_bill){
+            if (payment > total_bill){ //? change
                 change = payment - total_bill;
-                g(60, 5 + num);p("Change: %5.2f", change);
+                g(60, 4 + num);p("Change: %5.2f", change);
                 break;
             }
-            if (payment < total_bill){
-                g(60, 5 + num);p("Cancel Order?: ");
-                g(75, 5 + num);s("%s", &ans);
+            if (payment < total_bill){ //! cancel order
+                g(60, 4 + num);p("Cancel Order?: ");
+                g(75, 4 + num);s("%s", &ans);
                 if (ans == 'y' || ans == 'Y'){
                     for (num = 1; num < 4; num ++){
-                        stocks[num] = stocks[num] + previous_quantity[num];
-                        g(17, 8);p("               ");
-                        g(40, 2 + num);p("      ");
-                        g(45, 2 + num);p("                     ");
-                        g(60, 2 + num);p("                     ");
-                        g(68, 2 + num);p("     ");
-                        g(72, 2 + num);p("     ");
-                        g(60, 3 + num);p("                      ");
-                        g(60, 4 + num);p("                      ");
-                        g(60, 5 + num);p("                     ");
-                        g(60, 6 + num);p("                     ");
+                        stocks[num] = stocks[num] + present_quantity[num];
+                        erase();
                         //! we can optimize this using for loop i'll fix it later
                         goto order;
-                        /*gamiton ta ang prev quantity[num] para ma access naton 
-                        ang value prev qty by the use of num*/
+                        /* gamiton ta ang prev quantity[num] para ma access naton 
+                        ang value prev qty by the use of num */
                     }
                 } else if (ans == 'n' || 'N'){
                     g(70, 4 + num);p("   ");
@@ -140,17 +158,30 @@ void enter_order (){//? 70% of process is stroed in this function
     }
 }
 
-
 int main (){
     system("cls");
-    do{
+    while (1) {
         box(1, 37, 1, 10);
         //display_jollibee();
         enter_order();
-        g(55, 7 + num);p("Another Order? ");
-        g(70, 7 + num);s("%s", &ans);
-        order_no = order_no + 1;
-        system("cls");
-    } while (ans == 'y' || ans == 'Y');
-    system("cls");
+        g(55, 5 + num);p("Another Order? ");
+        g(70, 5 + num);s("%s", &ans);
+        if (ans == 'n' || ans == 'N'){
+            inventory:
+            box (1, 75, 12, 18);
+            display_total_inventory();
+            g(55, 6 + num);p("Exit? ");
+            g(70, 6 + num);s("%s", &ans);
+            if (ans == 'Y' || ans == 'y'){
+                system("cls");
+            } else {
+                goto inventory;
+            }
+        } else {
+            flag = 1;//? means answer is yes and go to order again
+            order_no = order_no + 1;
+            system("cls");
+        }
+    } 
+    
 }
