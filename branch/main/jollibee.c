@@ -5,7 +5,6 @@
 #define g gotoxy
 #define peso '₱'
 
-//! After cancel order where will the user be redirected to?? is it in payment or in choice?
 //! Need to fixed cancel order update
 //! Optimize the code
 //! Inventory display
@@ -82,15 +81,15 @@ void display_total_inventory(){
 
 void erase (){
     g(17, 8);p("               ");
-    g(40, 2 + num);p("      ");
-    g(45, 2 + num);p("                     ");
-    g(60, 2 + num);p("                     ");
-    g(68, 2 + num);p("     ");
-    g(72, 2 + num);p("     ");
+    g(40, 1 + num);p("      ");
+    g(45, 1 + num);p("                     ");
+    g(60, 1 + num);p("                     ");
+    g(68, 1 + num);p("     ");
+    g(72, 1 + num);p("     ");
+    g(60, 2 + num);p("                      ");
     g(60, 3 + num);p("                      ");
-    g(60, 4 + num);p("                      ");
+    g(60, 4 + num);p("                     ");
     g(60, 5 + num);p("                     ");
-    g(60, 6 + num);p("                     ");
 }
 
 void enter_order (){//? 70% of process is stored in this function
@@ -139,6 +138,7 @@ void enter_order (){//? 70% of process is stored in this function
                 g(75, 4 + num);s("%s", &ans);
                 if (ans == 'y' || ans == 'Y'){
                     for (num = 1; num < 4; num ++){
+                        total_bill = 0;
                         stocks[num] = stocks[num] + present_quantity[num];
                         erase();
                         //! we can optimize this using for loop i'll fix it later
@@ -170,14 +170,14 @@ int main (){
         box(1, 37, 1, 10);
         //display_jollibee();
         enter_order();
-        g(55, 5 + num);p("Another Order? ");
-        g(70, 5 + num);s("%s", &ans);
+        g(50, 5 + num);p("Another Customer? ");
+        g(67, 5 + num);s("%s", &ans);
         if (ans == 'n' || ans == 'N'){
             inventory:
             box (1, 75, 12, 18);
             display_total_inventory();
-            g(55, 6 + num);p("Exit? ");
-            g(70, 6 + num);s("%s", &ans);
+            g(55, 5 + num);p("Exit? ");
+            g(70, 5 + num);s("%s", &ans);
             if (ans == 'Y' || ans == 'y'){
                 system("cls");
             } else {
@@ -185,6 +185,7 @@ int main (){
             }
         } else {
             flag = 1;//? means answer is yes and go to order again
+            total_bill = 0;
             order_no = order_no + 1;
             system("cls");
         }
