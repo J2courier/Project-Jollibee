@@ -4,7 +4,7 @@
 #define s scanf
 #define g gotoxy
 #define peso '₱'
-
+//! need to do tomorrow:
 //! need to fix in instant exit if user enters choice 4 without order que
 //! Need to fix quantity 0
 //! Need to fix grand total
