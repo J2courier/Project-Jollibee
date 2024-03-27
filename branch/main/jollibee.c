@@ -5,28 +5,20 @@
 #define g gotoxy
 #define peso '₱'
 
-//! Need to fixed cancel order update
-//! Optimize the code
-//! Inventory display
-//! need to be fixed in another order reset total value
-//! need to be fixed in instant exit if user enters choice 4 without order que
-//! cancel order
-//! need fixed quantity 0
-//! need to fix cancel order twice value is stacked and being displayed
-
+//! need to fix in instant exit if user enters choice 4 without order que
+//! Need to fix quantity 0
+//! Need to fix grand total
+//! need to fix cancel order 'N'
 //? what's new?
 //? order update fixed
 //? order no increment fixed
 
 char ans;
 float payment, change;
-int flag; 
 int col_1, col_2, row_1, row_3, col, row;
 int price[4] = {0, 25, 30, 15}, stocks[4] = {0, 100, 100, 100}, stock_beginning[4] = {0, 100, 100, 100}, present_stocks[4] = {0, 100, 100, 100};
-int quantity [4] = {0, 0, 0, 0}, present_quantity[4] = {0, 0, 0, 0};
-int sold[4] = {0, 0 , 0, 0}, sales[4] = {0, 0, 0, 0};
-int grand_total = 0, order_no = 1, choice, total = 0, num, total_bill = 0; 
-int  stock_before = 0, stock_after = 0; 
+int quantity [4] = {0, 0, 0, 0}, present_quantity[4] = {0, 0, 0, 0}, sold[4] = {0, 0 , 0, 0}, sales[4] = {0, 0, 0, 0};
+int grand_total = 0, order_no = 1, choice, subtotal = 0, num, total_bill = 0, stock_before = 0, stock_after = 0; 
 char description [5][10] = {"","Hamburger", "French", "Coke", "Exit"}; //[5] is number sang index, [10] 10 characters or letters max
 
 void gotoxy (int x, int y){
@@ -36,7 +28,7 @@ void gotoxy (int x, int y){
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
 
-int box(int col1, int col2, int row1, int row2) {
+int box (int col1, int col2, int row1, int row2) {
     for(col=col1;col<=col2;col++){
         g(col,row1);p("-");
     }
@@ -70,12 +62,15 @@ void display_total_inventory(){
     g(15, 12);p("SB");
     g(20, 12);p("SE");
     g(25, 12);p("SOLD");
-    g(30, 12);p("SALES");
+    g(32, 12);p("SALES");
+    g(50, 17);p("Grand Total: ");
+    g(70, 16 + num);p("%d", grand_total);
     for (num = 1; num < 4; num ++){
         g(15, 13 + num);p("100");
         g(20, 13 + num);p("%d", stocks[num]);
-        g(25, 13 + num);p("%d", present_quantity[num]);
+        g(26, 13 + num);p("%d", present_quantity[num]);
         g(2, 13 + num);p("%s", description[num]);
+        
     }
 }
 
@@ -103,17 +98,22 @@ void enter_order (){//? 70% of process is stored in this function
         if (choice > 0 && choice < 4){
             g(20, 8);p("Qty: ");
             g(25, 8);s("%d", &quantity[choice]);
-            //present_stocks[choice] = stocks[choice] - quantity;
-            stocks[choice] = stocks[choice] - quantity[choice];//bawasan ang stocks
-            total = price[choice] * quantity[choice]; //e total iya balayran
-            total_bill = total_bill + total;
-            present_quantity [choice] = present_quantity[choice] + quantity[choice]; //i set ta ang quantity subong sa previous quanitity nga iya gin pili, kay gamiton tana karon
-            g(40, 1 + num);p("%d", num);
-            g(45, 1 + num);p("%s", description[choice]);
-            g(60, 1 + num);p("P %d", price[choice]);
-            g(68, 1 + num);p("%d", quantity[choice]);
-            g(72, 1 + num);p("%d", total);
-            g(15, 8);p("                    ");
+            stocks[choice] = stocks[choice] - quantity[choice]; //! bawasan ang stocks
+            subtotal = price[choice] * quantity[choice];  //! e total iya balayran
+            total_bill = total_bill + subtotal; //!final nga balayran
+            grand_total = grand_total + total_bill;
+            present_quantity [choice] = present_quantity[choice] + quantity[choice]; 
+            g(40, 1);p("Item#");
+            g(47, 1);p("Description");
+            g(60, 1);p("Price", price[choice]);
+            g(68, 1);p("Qty", quantity[choice]);
+            g(72, 1);p("subtotal");
+            g(40, 2 + num);p("%d", num);
+            g(47, 2 + num);p("%s", description[choice]);
+            g(60, 2 + num);p("P %d", price[choice]);
+            g(69, 2 + num);p("%d", quantity[choice]);
+            g(73, 2 + num);p("%d", subtotal);
+            g(15, 8);p("                    "); //! erase ang input sa pag iterate
             g(32, 4);p("%d ", stocks[1]);
             g(32, 5);p("%d ", stocks[2]);
             g(32, 6);p("%d ", stocks[3]);
@@ -123,7 +123,6 @@ void enter_order (){//? 70% of process is stored in this function
             g(60, 2 + num);p("Total is: %d", total_bill);
             g(60, 3 + num);p("Payment: ");
             g(70, 3 + num);s("%f", &payment);
-
             if (payment == total_bill){ //? success
                 g(60, 4 + num);p("Order success");
                 break;
@@ -139,11 +138,9 @@ void enter_order (){//? 70% of process is stored in this function
                 if (ans == 'y' || ans == 'Y'){
                     for (num = 1; num < 4; num ++){
                         total_bill = 0;
-                        stocks[num] = stocks[num] + present_quantity[num];
+                        stocks[num] = stocks[num] + quantity[num];
+                        grand_total = grand_total - total_bill;                        
                         erase();
-                        //! we can optimize this using for loop i'll fix it later
-                        /* gamiton ta ang prev quantity[num] para ma access naton 
-                        ang value prev qty by the use of num */
                     }
                     goto cancel_order;
                 } else if (ans == 'n' || 'N'){
@@ -169,8 +166,8 @@ int main (){
     while (1) {
         box(1, 37, 1, 10);
         //display_jollibee();
-        enter_order();
-        g(50, 5 + num);p("Another Customer? ");
+        enter_order(); //? sa enter order naga increment ang num para ma adjust depend sa kadamoun sang order ang another customer
+        g(50, 5 + num);p("Another Customer? "); //? ang increment sang num halin sa function nga enter_order();
         g(67, 5 + num);s("%s", &ans);
         if (ans == 'n' || ans == 'N'){
             inventory:
@@ -184,7 +181,6 @@ int main (){
                 goto inventory;
             }
         } else {
-            flag = 1;//? means answer is yes and go to order again
             total_bill = 0;
             order_no = order_no + 1;
             system("cls");

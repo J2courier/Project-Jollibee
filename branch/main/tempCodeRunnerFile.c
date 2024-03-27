@@ -1,1 +1,1 @@
-    display_jollibee ();
+g(72, 1 + num);p("%d", total);
