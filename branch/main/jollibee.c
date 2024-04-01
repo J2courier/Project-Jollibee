@@ -9,6 +9,7 @@
 //! Need to fix quantity 0
 //! Need to fix grand total
 //! need to fix cancel order 'N'
+
 //? what's new?
 //? order update fixed
 //? order no increment fixed
@@ -19,6 +20,7 @@ int col_1, col_2, row_1, row_3, col, row;
 int price[4] = {0, 25, 30, 15}, stocks[4] = {0, 100, 100, 100}, stock_beginning[4] = {0, 100, 100, 100}, present_stocks[4] = {0, 100, 100, 100};
 int quantity [4] = {0, 0, 0, 0}, present_quantity[4] = {0, 0, 0, 0}, sold[4] = {0, 0 , 0, 0}, sales[4] = {0, 0, 0, 0};
 int grand_total = 0, order_no = 1, choice, subtotal = 0, num, total_bill = 0, stock_before = 0, stock_after = 0; 
+int sub_sales[4] = {0, 0, 0, 0};
 char description [5][10] = {"","Hamburger", "French", "Coke", "Exit"}; //[5] is number sang index, [10] 10 characters or letters max
 
 void gotoxy (int x, int y){
@@ -63,12 +65,13 @@ void display_total_inventory(){
     g(20, 12);p("SE");
     g(25, 12);p("SOLD");
     g(32, 12);p("SALES");
-    g(50, 17);p("Grand Total: ");
-    g(70, 16 + num);p("%d", grand_total);
+    g(2, 17);p("Grand Total: ");
+    g(25 , 15 + num);p("%d", grand_total);
     for (num = 1; num < 4; num ++){
         g(15, 13 + num);p("100");
         g(20, 13 + num);p("%d", stocks[num]);
         g(26, 13 + num);p("%d", present_quantity[num]);
+        g(34, 13 + num);p("%d", sales[num]);
         g(2, 13 + num);p("%s", description[num]);
         
     }
@@ -83,8 +86,9 @@ void erase (){
     g(72, 1 + num);p("     ");
     g(60, 2 + num);p("                      ");
     g(60, 3 + num);p("                      ");
-    g(60, 4 + num);p("                     ");
+    g(55, 4 + num);p("                     ");
     g(60, 5 + num);p("                     ");
+    
 }
 
 void enter_order (){//? 70% of process is stored in this function
@@ -100,9 +104,11 @@ void enter_order (){//? 70% of process is stored in this function
             g(25, 8);s("%d", &quantity[choice]);
             stocks[choice] = stocks[choice] - quantity[choice]; //! bawasan ang stocks
             subtotal = price[choice] * quantity[choice];  //! e total iya balayran
+            sub_sales[choice] = price[choice] * quantity [choice];//! para ma total ang sales sa kada items
+            sales[choice] = sales[choice] + sub_sales[choice]; //! para  madisplay ang sales
             total_bill = total_bill + subtotal; //!final nga balayran
-            grand_total = grand_total + total_bill;
-            present_quantity [choice] = present_quantity[choice] + quantity[choice]; 
+            grand_total = grand_total + total_bill; //! para ma display ang grand total
+            present_quantity [choice] = present_quantity[choice] + quantity[choice]; //! para ma monitor ang quantiy sa kada item
             g(40, 1);p("Item#");
             g(47, 1);p("Description");
             g(60, 1);p("Price", price[choice]);
@@ -124,7 +130,7 @@ void enter_order (){//? 70% of process is stored in this function
             g(60, 3 + num);p("Payment: ");
             g(70, 3 + num);s("%f", &payment);
             if (payment == total_bill){ //? success
-                g(60, 4 + num);p("Order success");
+                //g(60, 4 + num);p("Order success    ");
                 break;
             }
             else if (payment > total_bill){ //? change
@@ -139,7 +145,8 @@ void enter_order (){//? 70% of process is stored in this function
                     for (num = 1; num < 4; num ++){
                         total_bill = 0;
                         stocks[num] = stocks[num] + quantity[num];
-                        grand_total = grand_total - total_bill;                        
+                        grand_total = grand_total - total_bill;
+                        g(60, 5 + num);p("                     ");
                         erase();
                     }
                     goto cancel_order;
@@ -170,11 +177,11 @@ int main (){
         g(50, 5 + num);p("Another Customer? "); //? ang increment sang num halin sa function nga enter_order();
         g(67, 5 + num);s("%s", &ans);
         if (ans == 'n' || ans == 'N'){
-            inventory:
             box (1, 75, 12, 18);
             display_total_inventory();
-            g(55, 5 + num);p("Exit? ");
-            g(70, 5 + num);s("%s", &ans);
+            inventory:
+            g(55, 6 + num);p("Exit? ");
+            g(70, 6 + num);s("%s", &ans);
             if (ans == 'Y' || ans == 'y'){
                 system("cls");
             } else {
