@@ -9,6 +9,8 @@
 //! Need to fix quantity 0
 //! Need to fix grand total
 //! need to fix cancel order 'N'
+//! need to fix inventory display function
+//! spaces
 
 //? what's new?
 //? order update fixed
@@ -60,20 +62,20 @@ void display_jollibee (){
     g(5, 7);p("%s", description[4]);
 }
 
+
 void display_total_inventory(){
-    g(15, 12);p("SB");
-    g(20, 12);p("SE");
-    g(25, 12);p("SOLD");
-    g(32, 12);p("SALES");
-    g(2, 17);p("Grand Total: ");
-    g(25 , 15 + num);p("%d", grand_total);
-    for (num = 1; num < 4; num ++){
-        g(15, 13 + num);p("100");
-        g(20, 13 + num);p("%d", stocks[num]);
-        g(26, 13 + num);p("%d", present_quantity[num]);
-        g(34, 13 + num);p("%d", sales[num]);
-        g(2, 13 + num);p("%s", description[num]);
-        
+    g(18, 15);p("SB");
+    g(23, 15);p("SE");
+    g(28, 15);p("SOLD");
+    g(35, 15);p("SALES");
+    g(2, 19);p("Grand Total: ");
+    g(15, 19);p("%d", grand_total);
+    for (int i = 1; i < 4; i ++){
+        g(18, 15 + i);p("100");
+        g(23, 15 + i);p("%d", stocks[i]);
+        g(28, 15 + i);p("%d", present_quantity[i]);
+        g(37, 15 + i);p("%d", sales[i]);
+        g(2, 15 + i);p("%s", description[i]);      
     }
 }
 
@@ -92,7 +94,7 @@ void erase (){
 }
 
 void enter_order (){//? 70% of process is stored in this function
-    cancel_order:
+    goto_sang_cancel_order:
     display_jollibee ();
     order:
     g(2, 8);p("Enter Choice: ");
@@ -130,7 +132,7 @@ void enter_order (){//? 70% of process is stored in this function
             g(60, 3 + num);p("Payment: ");
             g(70, 3 + num);s("%f", &payment);
             if (payment == total_bill){ //? success
-                //g(60, 4 + num);p("Order success    ");
+                //g(60, 4 + num);p("Order success    "); 
                 break;
             }
             else if (payment > total_bill){ //? change
@@ -139,20 +141,21 @@ void enter_order (){//? 70% of process is stored in this function
                 break;
             }
             else if (payment < total_bill){ //! cancel order
-                g(60, 4 + num);p("Cancel Order?: ");
+                g(60, 4 + num);p("cancel order? ");
                 g(75, 4 + num);s("%s", &ans);
                 if (ans == 'y' || ans == 'Y'){
                     for (num = 1; num < 4; num ++){
                         total_bill = 0;
-                        stocks[num] = stocks[num] + quantity[num];
-                        grand_total = grand_total - total_bill;
+                        stocks[num] = stocks[num] + quantity[num];//! e add ang quantity sang stocks, para ma balik
+                        grand_total = grand_total - total_bill; //! e subtract para hindi mag add
                         g(60, 5 + num);p("                     ");
                         erase();
                     }
-                    goto cancel_order;
+                    goto goto_sang_cancel_order;
                 } else if (ans == 'n' || 'N'){
                     g(70, 4 + num);p("   ");
                     g(60, 5 + num);p("                 ");
+                    erase();
                     goto pay;
                 } else {
                     g(70, 4 + num);p("INVALID INPUT");
@@ -177,7 +180,7 @@ int main (){
         g(50, 5 + num);p("Another Customer? "); //? ang increment sang num halin sa function nga enter_order();
         g(67, 5 + num);s("%s", &ans);
         if (ans == 'n' || ans == 'N'){
-            box (1, 75, 12, 18);
+            box (1, 75, 15, 22 );//! we need new variable for incrementing and move the box
             display_total_inventory();
             inventory:
             g(55, 6 + num);p("Exit? ");
