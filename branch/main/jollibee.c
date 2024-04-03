@@ -136,14 +136,14 @@ void enter_order (){//! 70% of process is stored in this function
                 pay:
                 grand_total = grand_total + total_bill; //! para ma display ang grand total
                 g(60, 2 + num);p("Total is: %d", total_bill);
-                g(60, 3 + num);p("Payment: ");
+                g(60, 3 + num);p("Payment : ");
                 g(70, 3 + num);s("%f", &payment);
                 if (payment == total_bill){ //! success
                     break;
                 }
                 else if (payment > total_bill){ //? change
                     change = payment - total_bill;
-                    g(60, 4 + num);p("Change: %5.2f", change);
+                    g(60, 4 + num);p("Change  : %5.2f", change);
                     break;
                 }
                 else if (payment < total_bill) { //! cancel order
@@ -185,18 +185,19 @@ int main (){
     while (1) {//! while (true) endless, will stop in certain condition inside the process by using 'break;'
         box(1, 37, 1, 10);
         enter_order(); //? sa enter order naga increment ang num para ma adjust depend sa kadamoun sang order ang another customer
+        another_customer:
         g(50, 5 + num);p("Another Customer? "); //? ang increment sang num halin sa function nga enter_order();
         g(67, 5 + num);s("%s", &ans);
         if (ans == 'n' || ans == 'N') {
             box (1, 75, 15, 22 );//! we need new variable for incrementing and move the box
             display_total_inventory();
-            inventory:
             g(55, 6 + num);p("Exit? ");
             g(70, 6 + num);s("%s", &ans);
             if (ans == 'Y' || ans == 'y') { 
-                system("cls");
+                break;
             } else {
-                goto inventory;
+                g(55, 6 + num);p("                   ");
+                goto another_customer;
             }
         } else {
             total_bill = 0;
@@ -204,4 +205,5 @@ int main (){
             system("cls");
         }
     } 
+    system("cls");
 }
