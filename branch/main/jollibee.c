@@ -55,7 +55,6 @@ void display_jollibee (){//! function para e display ang menu sang jolllibee
     g(5, 7);p("%s", description[4]);
 }
 
-
 void display_total_inventory(){//! function para ma display ang inventory
     g(19, 15);p("SB");//! stock beginning
     g(24, 15);p("SE");//! stock end
@@ -72,11 +71,13 @@ void display_total_inventory(){//! function para ma display ang inventory
     }
 }
 void erase_list (){//! function para i erase ang list sang gin order
-
+    g(17, 8);p("  ");
     g(40, 1 + num);p("      ");//! the rest para sa list nga gin order
+    g(45, 1 + num);p("                     ");
+    g(45, 2 + num);p("                     ");
+    g(40, 3 + num);p("                     ");
     g(68, 1 + num);p("     ");
     g(72, 1 + num);p("     ");
-    g(45, 1 + num);p("                     ");
     g(60, 1 + num);p("                     ");
     g(60, 2 + num);p("                      ");
 }
