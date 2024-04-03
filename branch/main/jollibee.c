@@ -4,8 +4,6 @@
 #define s scanf
 #define g gotoxy
 #define peso '₱'
-//! in order list same order will be stored the same description
-//! need to fix exit
 
 //? what's new?
 //? order update fixed
@@ -18,7 +16,7 @@ int price[4] = {0, 25, 30, 15}, stocks[4] = {0, 100, 100, 100}, stock_beginning[
 int quantity [4] = {0, 0, 0, 0}, present_quantity[4] = {0, 0, 0, 0}, sold[4] = {0, 0 , 0, 0}, sales[4] = {0, 0, 0, 0};
 int grand_total = 0, order_no = 1, choice, subtotal = 0, num, total_bill = 0, stock_before = 0, stock_after = 0; 
 int sub_sales[4] = {0, 0, 0, 0}, flag = 0;
-char description [5][10] = {"","Hamburger", "French", "Coke", "Exit"}; //[5] is number sang index, [10] 10 characters or letters max
+char description [5][10] = {"","Hamburger", "French", "Coke", "Exit"}; 
 
 void gotoxy (int x, int y){
     COORD coord;
@@ -74,7 +72,7 @@ void display_total_inventory(){//! function para ma display ang inventory
     }
 }
 void erase_list (){//! function para i erase ang list sang gin order
-    g(17, 8);p("               ");//! para sa choice 
+
     g(40, 1 + num);p("      ");//! the rest para sa list nga gin order
     g(68, 1 + num);p("     ");
     g(72, 1 + num);p("     ");
