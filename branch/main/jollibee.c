@@ -4,9 +4,6 @@
 #define s scanf
 #define g gotoxy
 #define peso '₱'
-//! need to fix in instant exit if user enters choice 4 without order que
-//! Need to fix quantity 0
-//! need to fix inventory display function
 //! in order list same order will be stored the same description
 //! need to fix exit
 
@@ -20,7 +17,7 @@ int col_1, col_2, row_1, row_3, col, row;
 int price[4] = {0, 25, 30, 15}, stocks[4] = {0, 100, 100, 100}, stock_beginning[4] = {0, 100, 100, 100}, present_stocks[4] = {0, 100, 100, 100};
 int quantity [4] = {0, 0, 0, 0}, present_quantity[4] = {0, 0, 0, 0}, sold[4] = {0, 0 , 0, 0}, sales[4] = {0, 0, 0, 0};
 int grand_total = 0, order_no = 1, choice, subtotal = 0, num, total_bill = 0, stock_before = 0, stock_after = 0; 
-int sub_sales[4] = {0, 0, 0, 0};
+int sub_sales[4] = {0, 0, 0, 0}, flag = 0;
 char description [5][10] = {"","Hamburger", "French", "Coke", "Exit"}; //[5] is number sang index, [10] 10 characters or letters max
 
 void gotoxy (int x, int y){
@@ -102,66 +99,78 @@ void enter_order (){//! 70% of process is stored in this function
         g(17, 8);s("%d", &choice);
         g(2, 9);p("              ");
         if (choice > 0 && choice < 4){
+            quantity:
+            flag = 1;
             g(20, 8);p("Qty: ");
             g(25, 8);s("%d", &quantity[choice]);
-            stocks[choice] = stocks[choice] - quantity[choice]; //! bawasan ang stocks
-            subtotal = price[choice] * quantity[choice];  //! e total iya balayran
-            sub_sales[choice] = price[choice] * quantity [choice];//! para ma total ang sales sa kada items
-            sales[choice] = sales[choice] + sub_sales[choice]; //! para  madisplay ang sales
-            total_bill = total_bill + subtotal; //!final nga balayran
-            
-            present_quantity [choice] = present_quantity[choice] + quantity[choice]; //! para ma monitor ang quantiy sa kada item
-            g(40, 1);p("Item#");
-            g(47, 1);p("Description");
-            g(60, 1);p("Price", price[choice]);
-            g(68, 1);p("Qty", quantity[choice]);
-            g(72, 1);p("subtotal");
-            g(40, 2 + num);p("%d", num);
-            g(47, 2 + num);p("%s", description[choice]);
-            g(60, 2 + num);p("P %d", price[choice]);
-            g(69, 2 + num);p("%d", quantity[choice]);
-            g(73, 2 + num);p("%d", subtotal);
-            g(15, 8);p("                    "); //! erase ang input sa pag iterate
-            g(32, 4);p("%d ", stocks[1]);
-            g(32, 5);p("%d ", stocks[2]);
-            g(32, 6);p("%d ", stocks[3]);
-        }  
-        else if (choice == 4){ //! ma proceed sa payment
-            pay:
-            grand_total = grand_total + total_bill; //! para ma display ang grand total
-            g(60, 2 + num);p("Total is: %d", total_bill);
-            g(60, 3 + num);p("Payment: ");
-            g(70, 3 + num);s("%f", &payment);
-            if (payment == total_bill){ //! success
-                break;
+            if (quantity[choice] > 0) { //! greater than 0 means may quantiy sya nga gin butang
+                g(2, 9);p("              "); //! erase the invalid input display
+                stocks[choice] = stocks[choice] - quantity[choice]; //! bawasan ang stocks
+                subtotal = price[choice] * quantity[choice];  //! e total iya balayran
+                sub_sales[choice] = price[choice] * quantity [choice];//! para ma total ang sales sa kada items
+                sales[choice] = sales[choice] + sub_sales[choice]; //! para  madisplay ang sales
+                total_bill = total_bill + subtotal; //!final nga balayran
+                present_quantity [choice] = present_quantity[choice] + quantity[choice]; //! para ma monitor ang quantiy sa kada item
+                g(40, 1);p("Item#");
+                g(47, 1);p("Description");
+                g(60, 1);p("Price", price[choice]);
+                g(68, 1);p("Qty", quantity[choice]);
+                g(72, 1);p("subtotal");
+                g(40, 2 + num);p("%d", num);
+                g(47, 2 + num);p("%s", description[choice]);
+                g(60, 2 + num);p("P %d", price[choice]);
+                g(69, 2 + num);p("%d", quantity[choice]);
+                g(73, 2 + num);p("%d", subtotal);
+                g(15, 8);p("                    "); //! erase ang input sa pag iterate
+                g(32, 4);p("%d ", stocks[1]);
+                g(32, 5);p("%d ", stocks[2]);
+                g(32, 6);p("%d ", stocks[3]);
+            }  else {
+                  g(2, 9);p("INVALID INPUT");
+                  g(25, 8);p("  ");
+                  goto quantity;
             }
-            else if (payment > total_bill){ //? change
-                change = payment - total_bill;
-                g(60, 4 + num);p("Change: %5.2f", change);
-                break;
-            }
-            else if (payment < total_bill) { //! cancel order
-                g(60, 4 + num);p("cancel order? ");
-                g(75, 4 + num);s("%s", &ans);
-                if (ans == 'y' || ans == 'Y'){
-                    for (num = 1; num < 4; num ++){
-                        total_bill = 0;
-                        stocks[num] = stocks[num] + quantity[num];//! e add ang quantity sang stocks, para ma balik
-                        grand_total = grand_total - total_bill; //! e subtract para hindi mag add
-                        g(60, 5 + num);p("                     ");
-                        erase_list();
-                    }
-                    goto goto_sang_cancel_order;
-                } else if (ans == 'n' || 'N'){
-                    g(70, 4 + num);p("   ");
-                    g(60, 5 + num);p("                 ");
-                    erase();
-                    goto pay;
-                } else {
-                    g(70, 4 + num);p("INVALID INPUT");
+        }
+        else if (choice == 4){ //! ma proceed sa payment or kung mag exit without order ma ask another customer
+            if (flag == 1){//! nag set ta flag sa enter choice 1,2,3 if mag enter sa either sa tatlo ma set ang flag sa 1 means may order sya if 0 means wala sya order
+                pay:
+                grand_total = grand_total + total_bill; //! para ma display ang grand total
+                g(60, 2 + num);p("Total is: %d", total_bill);
+                g(60, 3 + num);p("Payment: ");
+                g(70, 3 + num);s("%f", &payment);
+                if (payment == total_bill){ //! success
+                    break;
                 }
-            } else {
-                g(65, 5 + num);p("INVALID INPUT");
+                else if (payment > total_bill){ //? change
+                    change = payment - total_bill;
+                    g(60, 4 + num);p("Change: %5.2f", change);
+                    break;
+                }
+                else if (payment < total_bill) { //! cancel order
+                    g(60, 4 + num);p("cancel order? ");
+                    g(75, 4 + num);s("%s", &ans);
+                    if (ans == 'y' || ans == 'Y'){
+                        for (num = 1; num < 4; num ++){
+                            total_bill = 0;
+                            stocks[num] = stocks[num] + quantity[num];//! e add ang quantity sang stocks, para ma balik
+                            grand_total = grand_total - total_bill; //! e subtract para hindi mag add
+                            g(60, 5 + num);p("                     ");
+                            erase_list();
+                        }
+                        goto goto_sang_cancel_order;
+                    } else if (ans == 'n' || 'N'){
+                        g(70, 4 + num);p("   ");
+                        g(60, 5 + num);p("                 ");
+                        erase();
+                        goto pay;
+                    } else {
+                        g(70, 4 + num);p("INVALID INPUT");
+                    }
+                } else {
+                    g(65, 5 + num);p("INVALID INPUT");
+                }
+            } else { //! else sang flag means if flag = 0 man gihapon wala sa order kag ma another customer nalng
+                break;
             }
         } else {
             g(2, 9);p("INVALID INPUT");
