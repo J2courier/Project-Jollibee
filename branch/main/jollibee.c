@@ -52,7 +52,7 @@ int box (int col1, int col2, int row1, int row2){ //!function para sa box
     }
 }
 
-void display_jollibee (){//! function para e display ang menu sang jolllibee
+void display_jollibee (){ //! function para e display ang menu sang jolllibee
     g(2, 2);p("ORDER NO. %d", order_no);
     g(2, 3);p("Products");
     g(20, 3);p("Price &");
@@ -63,7 +63,7 @@ void display_jollibee (){//! function para e display ang menu sang jolllibee
         g(22, 3 + num);p("%d", price[num]);
         g(32, 3 + num);p("%d", stocks[num]);
     }
-    g(2, 7);p("[4]");
+    g(2, 7);p("[4]"); //! ang choice nga 4 e display ta seperately kay ga conflict mag display
     g(5, 7);p("%s", description[4]);
 }
 
@@ -108,7 +108,7 @@ void enter_order (){//! 70% of process is stored in this function
     g(2, 8);p("Enter Choice: "); //! prompt to enter a choice
     for (num = 1; num > 0; num++){ //! loop for entering choice endless, ma end lang if mag enter choice '4' which is exit
         g(17, 8);s("%d", &choice);
-        g(2, 9);p("              ");
+        g(2, 9);p("                  ");
         if (choice > 0 && choice < 4){
             quantity: 
             may_order = 1; //! para ma determine sa choice 4 kung may order or wala 1 means may order, 0 means wala order
@@ -142,6 +142,10 @@ void enter_order (){//! 70% of process is stored in this function
                     g(25, 8);p("  ");
                     goto quantity;
                 }
+            } else { //! CONDITION PARA SA INVALID QUANTITY which is less than 0
+                num = num - 1;
+                g(2, 9);p("INVALID QUANTITY");
+                g(17, 8);p("                "); 
             }
         }     
         else if (choice == 4){ //! ma proceed sa payment or kung mag exit without order ma ask another customer
@@ -152,50 +156,50 @@ void enter_order (){//! 70% of process is stored in this function
                 g(60, 3 + num);p("Payment : ");
                 g(70, 3 + num);s("%f", &payment);
                 if (payment == total_bill){ //! success
-                    break;
+                    break; //! ma break out sa sya for loop sang enter_order() function
                 }
                 else if (payment > total_bill){ //? change
                     change = payment - total_bill;
                     g(60, 4 + num);p("Change  : %5.2f", change);
-                    break;
+                    break; //! ma break out sa sya for loop sang enter_order() function
                 }
-                else if (payment < total_bill) { //! cancel order
-                    g(60, 4 + num);p("cancel order? ");
-                    g(75, 4 + num);s("%s", &ans);
-                    if (ans == 'y' || ans == 'Y'){
-                        for (num = 1; num < 4; num ++){
-                            total_bill = 0;
+                else if (payment < total_bill){ //! cancel order
+                    g(60, 4 + num);p("cancel order? ");  //! display cancel order
+                    g(75, 4 + num);s("%s", &ans); //! get the input using scanf 
+                    if (ans == 'y' || ans == 'Y'){ //! check the input if Y or others, Y means yes
+                        for (num = 1; num < 4; num ++){ //! loop the the stocks element in order to return the previous value
+                            total_bill = 0; //! set total bill to 0 para sa next order 0 na ang value
                             stocks[num] = stocks[num] + quantity[num];//! e add ang quantity sang stocks, para ma balik
                             grand_total = grand_total - total_bill; //! e subtract para hindi mag add
                             g(60, 5 + num);p("                     ");
-                            erase_list();
+                            erase_list(); //! ini nga function consist ni sya sang mga pang tamper sa display
                         }
                         goto goto_sang_cancel_order;
-                    } else if (ans == 'n' || 'N'){
+                    } else if (ans == 'n' || 'N'){ //! condition if ans is no in cancel order, no means ma pay sya liwat
                         g(70, 4 + num);p("   ");
                         g(60, 5 + num);p("                 ");
-                        erase();
+                        erase(); //! erase_function is consist of erasing the part of cancel order and the value of payment
                         goto pay;
                     } else {
-                        g(70, 4 + num);p("INVALID INPUT");
+                        g(70, 4 + num);p("INVALID INPUT"); //! invalid input sang cancel order
                     }
                 } else {
-                    g(65, 5 + num);p("INVALID INPUT");
+                    g(65, 5 + num);p("INVALID INPUT");//! invalid input sang payment
                 }
             } else { //! else sang flag means if flag = 0 man gihapon wala sa order kag ma another customer nalng
-                break;
+                break; //! ma break sya sa enter_order function directly ma ask another customer
             }
         } else {
-            g(2, 9);p("INVALID INPUT");
-            num = num - 1;
-            g(17, 8);p("              ");
+            g(2, 9);p("INVALID INPUT"); //! invalid input sa pag enter sang choice
+            num = num - 1; //! enter choice that is invalid is counted in loop, para ma prevent ang value sang loop kung error e decrement naton
+            g(17, 8);p("              "); //! tamper sa display nga choice
         }   
     }
 }
 
 int main (){
     system("cls");
-    while (1) {//! while (true) endless, will stop in certain condition inside the process by using 'break;'
+    while (1) { //! while (true) endless, will stop in certain condition inside the process by using 'break;'
         box(1, 37, 1, 10);
         enter_order(); //? sa enter order naga increment ang num para ma adjust depend sa kadamoun sang order ang another customer
         another_customer:
@@ -207,10 +211,10 @@ int main (){
             g(55, 6 + num);p("Exit? ");
             g(70, 6 + num);s("%s", &ans);
             if (ans == 'Y' || ans == 'y') { 
-                break;
+                break; //! ma break nasa sa while loop
             } else {
                 g(55, 6 + num);p("                   ");
-                goto another_customer;
+                goto another_customer; 
             }
         } else {
             total_bill = 0;
@@ -218,5 +222,5 @@ int main (){
             system("cls");
         }
     } 
-    system("cls");
+    system("cls"); //! after break sa exit diri na sa ma direct
 }
