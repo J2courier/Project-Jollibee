@@ -5,12 +5,13 @@
 #define g gotoxy
 
 //! array variable 1D
-int sold [4] = {0, 0 , 0, 0}; 
-int sales [4] = {0, 0, 0, 0};
+int total_sold [4] = {0, 0 , 0, 0}; 
+int subtotal[4] = {0, 0, 0, 0}; 
 int price [4] = {0, 25, 30, 15};
 int stocks [4] = {0, 100, 100, 100};
 int quantity [4] = {0, 0, 0, 0};
 int sub_sales [4] = {0, 0, 0, 0};
+int total_sales [4] = {0, 0, 0, 0};
 int present_stocks [4] = {0, 100, 100, 100};
 int present_quantity [4] = {0, 0, 0, 0};
 int stock_beginning [4] = {0, 100, 100, 100};
@@ -23,7 +24,6 @@ int may_order = 0;
 int col, row;
 int order_no = 1;
 int choice;
-int subtotal = 0; 
 int total_bill = 0; 
 int stock_after = 0; 
 int grand_total = 0;
@@ -52,7 +52,7 @@ int box (int col1, int col2, int row1, int row2){ //!function para sa box
     }
 }
 
-void display_jollibee (){ //! function para e display ang menu sang jolllibee
+void main_menu(){ //! function para e display ang menu sang jolllibee
     g(2, 2);p("ORDER NO. %d", order_no);
     g(2, 3);p("Products");
     g(20, 3);p("Price &");
@@ -77,33 +77,32 @@ void display_total_inventory(){//! function para ma display ang inventory
     for (int i = 1; i < 4; i ++){//! loop para ma display ang value sang aton nga items, ila SB, SE, sold, and sales
         g(19, 16 + i);p("100");
         g(24, 16 + i);p("%d", stocks[i]);
-        g(29, 16 + i);p("%d", present_quantity[i]);
-        g(36, 16 + i);p("%d", sales[i]);
+        g(29, 16 + i);p("%d", total_sold[i]);
+        g(36, 16 + i);p("%d", total_sales[i]);
         g(3, 16 + i);p("%s", description[i]);      
     }
 }
-void erase_list (){//! function para i erase ang list sang gin order
-    g(17, 8);p("  ");
-    g(40, 1 + num);p("      ");//! the rest para sa list nga gin order
+void erase_enter_order (){//! function para i erase ang list sang gin order
+    g(17, 8);p("          ");
+    g(40, 1 + num);p("                     ");//! the rest para sa list nga gin order
     g(45, 1 + num);p("                     ");
     g(45, 2 + num);p("                     ");
     g(40, 3 + num);p("                     ");
-    g(68, 1 + num);p("     ");
-    g(72, 1 + num);p("     ");
+    g(68, 1 + num);p("                     ");
+    g(72, 1 + num);p("                     ");
     g(60, 1 + num);p("                     ");
-    g(60, 2 + num);p("                      ");
+    g(60, 2 + num);p("                     ");
 }
 void erase (){//! function para i erase ang cancel order kag ang payment 
     g(17, 8);p("               "); //! para sa choice
     g(60, 3 + num);p("                     ");//! para sa payment
     g(55, 4 + num);p("                     ");//! para sa cancel order
     g(60, 5 + num);p("                     ");//! para sa value sang cancel order
-    
 }
 
 void enter_order (){//! 70% of process is stored in this function
     goto_sang_cancel_order: 
-    display_jollibee (); //! call out and function
+    main_menu (); //! call out and function
     order: //! unecessary but incase
     g(2, 8);p("Enter Choice: "); //! prompt to enter a choice
     for (num = 1; num > 0; num++){ //! loop for entering choice endless, ma end lang if mag enter choice '4' which is exit
@@ -118,11 +117,10 @@ void enter_order (){//! 70% of process is stored in this function
                 if (quantity[choice] > 0) { //! greater than 0 means may quantiy sya nga gin butang
                     g(2, 9);p("              "); //! erase the invalid input display
                     stocks[choice] = stocks[choice] - quantity[choice]; //! bawasan ang stocks
-                    subtotal = price[choice] * quantity[choice];  //! e total iya balayran
-                    sub_sales[choice] = price[choice] * quantity [choice];//! para ma total ang sales sa kada items
-                    sales[choice] = sales[choice] + sub_sales[choice]; //! para  madisplay ang sales
-                    total_bill = total_bill + subtotal; //!final nga balayran
-                    present_quantity [choice] = present_quantity[choice] + quantity[choice]; //! para ma monitor ang quantiy sa kada item
+                    subtotal[choice] = price[choice] * quantity[choice];  //! e total iya balayran
+                    total_sales[choice] = total_sales[choice] + subtotal[choice]; //! para  madisplay ang sales
+                    total_bill = total_bill + subtotal[choice]; //!final nga balayran
+                    total_sold [choice] = total_sold[choice] + quantity[choice]; //! para ma monitor ang quantiy sa kada item
                     g(40, 1);p("Item#");
                     g(47, 1);p("Description");
                     g(60, 1);p("Price", price[choice]);
@@ -132,8 +130,8 @@ void enter_order (){//! 70% of process is stored in this function
                     g(47, 2 + num);p("%s", description[choice]);
                     g(60, 2 + num);p("P %d", price[choice]);
                     g(69, 2 + num);p("%d", quantity[choice]);
-                    g(73, 2 + num);p("%d", subtotal);
-                    g(15, 8);p("                    "); //! erase ang input sa pag iterate
+                    g(73, 2 + num);p("%d", subtotal[choice]);
+                    g(17, 8);p("                    "); //! erase ang input sa pag iterate
                     g(32, 4);p("%d ", stocks[1]);
                     g(32, 5);p("%d ", stocks[2]);
                     g(32, 6);p("%d ", stocks[3]);
@@ -156,10 +154,12 @@ void enter_order (){//! 70% of process is stored in this function
                 g(60, 3 + num);p("Payment : ");
                 g(70, 3 + num);s("%f", &payment);
                 if (payment == total_bill){ //! success
+                    may_order = 0;
                     break; //! ma break out sa sya for loop sang enter_order() function
                 }
-                else if (payment > total_bill){ //? change
+                else if (payment > total_bill){ //? change and success
                     change = payment - total_bill;
+                    may_order = 0;
                     g(60, 4 + num);p("Change  : %5.2f", change);
                     break; //! ma break out sa sya for loop sang enter_order() function
                 }
@@ -172,7 +172,7 @@ void enter_order (){//! 70% of process is stored in this function
                             stocks[num] = stocks[num] + quantity[num];//! e add ang quantity sang stocks, para ma balik
                             grand_total = grand_total - total_bill; //! e subtract para hindi mag add
                             g(60, 5 + num);p("                     ");
-                            erase_list(); //! ini nga function consist ni sya sang mga pang tamper sa display
+                            erase_enter_order(); //! ini nga function consist ni sya sang mga pang tamper sa display
                         }
                         goto goto_sang_cancel_order;
                     } else if (ans == 'n' || 'N'){ //! condition if ans is no in cancel order, no means ma pay sya liwat
@@ -187,6 +187,7 @@ void enter_order (){//! 70% of process is stored in this function
                     g(65, 5 + num);p("INVALID INPUT");//! invalid input sang payment
                 }
             } else { //! else sang flag means if flag = 0 man gihapon wala sa order kag ma another customer nalng
+                order_no = order_no - 1;
                 break; //! ma break sya sa enter_order function directly ma ask another customer
             }
         } else {
