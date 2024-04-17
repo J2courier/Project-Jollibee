@@ -25,11 +25,10 @@ int grand_total = 0;
 float payment, change;
 
 void gotoxy(int x,int y){
-COORD coord;
-coord.X = x-1;
-coord.Y = y-1;
-SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE),coord);
-
+    COORD coord;
+    coord.X = x-1;
+    coord.Y = y-1;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE),coord);
 }
 
 
@@ -113,13 +112,11 @@ void enter_order (){//! 70% of process is stored in this function
             if (quantity [choice] <= stocks[choice]){ //! condition/ sentinel kung sufficient ang stocks sa quantity nya nga gin order
                 if (quantity[choice] > 0) { //! greater than 0 means may quantiy sya nga gin butang
                     g(2, 9);p("                  "); //! erase the invalid input display
-                    
                     stocks[choice] = stocks[choice] - quantity[choice]; //! bawasan ang stocks
                     subtotal[choice] = price[choice] * quantity[choice];  //! e total iya balayran
                     total_sales[choice] = total_sales[choice] + subtotal[choice]; //! para  madisplay ang sales
                     total_bill = total_bill + subtotal[choice]; //!final nga balayran
                     total_sold [choice] = total_sold[choice] + quantity[choice]; //! para ma monitor ang quantiy sa kada item
-                    
                     g(40, 1);p("Item#");
                     g(47, 1);p("Description");
                     g(60, 1);p("Price", price[choice]); 
@@ -130,7 +127,6 @@ void enter_order (){//! 70% of process is stored in this function
                     g(60, 2 + num);p("P %d", price[choice]);
                     g(69, 2 + num);p("%d", quantity[choice]);
                     g(73, 2 + num);p("%d", subtotal[choice]);
-
                     g(17, 8);p("                    "); //! erase ang input sa pag iterate
                     g(32, 4);p("%d ", stocks[1]);
                     g(32, 5);p("%d ", stocks[2]);
@@ -141,7 +137,7 @@ void enter_order (){//! 70% of process is stored in this function
                     goto quantity;
                 }
             } else { //! CONDITION PARA SA INVALID QUANTITY which is less than 0
-                num = num - 1;
+                num = num - 1; //minus increment pag nag error para mag remain ang order sa 1,2,3 pasunod ang number
                 g(2, 9);p("Insufficient  ");
                 g(17, 8);p("                 "); 
             }
@@ -155,35 +151,21 @@ void enter_order (){//! 70% of process is stored in this function
                 g(60, 3 + num);p("Payment : ");
                 g(70, 3 + num);s("%f", &payment);
                 if (payment == total_bill){ //! success
+                    g(60, 4 + num);p("                     ");
                     may_order = 0;
                     break; //! ma break out sa sya for loop sang enter_order() function
                 }
                 else if (payment > total_bill){ //? change and success
+                    g(60, 4 + num);p("                     ");
                     change = payment - total_bill;
                     may_order = 0;
                     g(60, 4 + num);p("Change  : %5.2f", change);
                     break; //! ma break out sa sya for loop sang enter_order() function
                 }
-                else if (payment < total_bill){ //! cancel order
-                    g(60, 4 + num);p("cancel order? ");  //! display cancel order
-                    g(75, 4 + num);s("%s", &ans); //! get the input using scanf 
-                    if (ans == 'y' || ans == 'Y'){ //! check the input if Y or others, Y means yes
-                        for (num = 1; num < 4; num ++){ //! loop the the stocks element in order to return the previous value
-                            total_bill = 0; //! set total bill to 0 para sa next order 0 na ang value
-                            stocks[num] = stocks[num] + quantity[num];//! e add ang quantity sang stocks, para ma balik
-                            grand_total = grand_total - total_bill; //! e subtract para hindi mag add
-                            g(60, 5 + num);p("                     ");
-                            erase_enter_order(); //! ini nga function consist ni sya sang mga pang tamper sa display
-                        }
-                        goto goto_sang_cancel_order;
-                    } else if (ans == 'n' || 'N'){ //! condition if ans is no in cancel order, no means ma pay sya liwat
-                        g(70, 4 + num);p("   ");
-                        g(60, 5 + num);p("                 ");
-                        erase(); //! erase_function is consist of erasing the part of cancel order and the value of payment
-                        goto pay;
-                    } else {
-                        g(70, 4 + num);p("INVALID INPUT"); //! invalid input sang cancel order
-                    }
+                else if (payment < total_bill){
+                    g(70, 3 + num);p("     ");
+                    g(60, 4 + num);p("INSUFFICIENT  AMOUNT");
+                   goto pay;
                 } 
 
             } else { //! else sang flag means if may_order = 0 man gihapon wala sa order kag ma another customer nalng
@@ -203,15 +185,15 @@ int main (){
     while (1) { //! while (true) endless, will stop in certain condition inside the process by using 'break;'
         box(1, 37, 1, 10);
         enter_order(); //? sa enter order naga increment ang num para ma adjust depend sa kadamoun sang order ang another customer
+        box (1, 75, 15, 22 );//! we need new variable for incrementing and move the box
+        display_total_inventory();
         another_customer:
         g(50, 5 + num);p("Another Customer? "); //? ang increment sang num halin sa function nga enter_order();
         g(67, 5 + num);s("%s", &ans); 
-        if (ans == 'n' || ans == 'N') {
-            box (1, 75, 15, 22 );//! we need new variable for incrementing and move the box
-            display_total_inventory();
+        if (ans == 'n' || ans == 'N') { //if no means ma exit sya tas confirmation naman sa no
             g(55, 6 + num);p("Exit? ");
             g(70, 6 + num);s("%s", &ans);
-            if (ans == 'Y' || ans == 'y') { //exit ans
+            if (ans == 'Y' || ans == 'y') { //if yes means ma terminate ang program, if no or else ma balik sya ma ask sya another customer
                 break; //! ma break nasa sa while loop
             } else {
                 g(55, 6 + num);p("                   ");
